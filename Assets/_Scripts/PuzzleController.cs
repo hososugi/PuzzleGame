@@ -4,45 +4,57 @@ using UnityEngine;
 
 public class PuzzleController : MonoBehaviour
 {
-    public GameObject puzzlePiecePrefab;
+    public Queue<GameObject> poolQueue;
+    public Pool puzzlePiecePool;
     public GameObject puzzlePieceParent;
-    public int puzzleWidthCount = 3;
-    public int puzzleHeightCount = 3;
-    public int dropHeight = 10;
-
-    [SerializeField]
-    private int puzzlePieceCount;
-    [SerializeField]
-    private int puzzlePieceScale;
+    public int puzzlePieceScale = 1;
 
     // Start is called before the first frame update
     void Start()
     {
-        puzzlePieceCount = puzzleWidthCount * puzzleHeightCount;
-        puzzlePieceScale = 1;
-
         GeneratePuzzlePieces();
     }
 
-    // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
-        
+        Vector3 location     = transform.position;
+        //Quaternion rotation = Quaternion.identity;
+        Quaternion rotation  = Random.rotation;
+
+        SpawnFromPool("PuzzlePieces", location, rotation);
     }
 
     void GeneratePuzzlePieces()
     {
-        for(var x = 0; x < puzzleWidthCount; x++)
-        {
-            for (var y = 0; y < puzzleHeightCount; y++)
-            {
-                Vector3 location = new Vector3(0, dropHeight, 0);
-                Quaternion rotation = Quaternion.identity;
-                Quaternion roation = Random.rotation;
+        Queue<GameObject> objectPool = new Queue<GameObject>();
 
-                GameObject newPuzzlePiece = Instantiate(puzzlePiecePrefab, location, rotation);
-                newPuzzlePiece.transform.parent = puzzlePieceParent.transform;
-            }
+        for (int i = 0; i < puzzlePiecePool.size; i++)
+        {
+            GameObject prefabInstance       = Instantiate(puzzlePiecePool.prefab);
+            prefabInstance.transform.parent = puzzlePieceParent.transform;
+
+
+            prefabInstance.SetActive(false);
+            objectPool.Enqueue(prefabInstance);
         }
+
+        poolQueue = objectPool;
+    }
+
+    public GameObject SpawnFromPool(string tag, Vector3 position, Quaternion rotation)
+    {
+        GameObject objectToSpawn = poolQueue.Dequeue();
+        objectToSpawn.transform.position = position;
+        objectToSpawn.transform.rotation = rotation;
+        objectToSpawn.SetActive(true);
+
+        return objectToSpawn;
+    }
+
+    [System.Serializable]
+    public class Pool
+    {
+        public GameObject prefab;
+        public int size;
     }
 }
