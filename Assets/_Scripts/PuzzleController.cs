@@ -41,14 +41,15 @@ public class PuzzleController : MonoBehaviour
         poolQueue = objectPool;
     }
 
-    public GameObject SpawnFromPool(string tag, Vector3 position, Quaternion rotation)
+    public void SpawnFromPool(string tag, Vector3 position, Quaternion rotation)
     {
-        GameObject objectToSpawn = poolQueue.Dequeue();
-        objectToSpawn.transform.position = position;
-        objectToSpawn.transform.rotation = rotation;
-        objectToSpawn.SetActive(true);
-
-        return objectToSpawn;
+        if (poolQueue.Count > 0)
+        {
+            GameObject objectToSpawn = poolQueue.Dequeue();
+            objectToSpawn.transform.position = position;
+            objectToSpawn.transform.rotation = rotation;
+            objectToSpawn.SetActive(true);
+        }
     }
 
     [System.Serializable]
